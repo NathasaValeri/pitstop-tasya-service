@@ -301,7 +301,7 @@
                         </div>
                     </div>
 
-                    <!-- Financial Summary Cards (Piutang Diganti Pendapatan Hari Ini) -->
+                    <!-- Financial Summary Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-6 rounded-2xl border border-slate-200">
                         <div>
                             <p class="text-xs font-bold uppercase text-slate-500">Pendapatan Bulan Ini</p>
@@ -673,44 +673,58 @@
                 subtitle.innerText = "Servis berjalan apabila pembayaran berhasil dan masuk ke pendapatan hari ini.";
                 actionContainer.innerHTML = `<button onclick="switchView('reports')" class="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-6 py-3 rounded-xl shadow-md transition"><i class="fa-solid fa-file-lines mr-1"></i> Lihat Laporan & Keuangan</button>`;
 
+                // Update container class to support 5 cards cleanly on large screens
+                statsContainer.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4";
+                const totalCustomersCount = users.filter(u => u.role === 'customer').length + 84; // base demo + real registered
+
                 statsContainer.innerHTML = `
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                         <div>
-                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Booking</p>
-                            <h3 class="text-3xl font-bold text-slate-800 mt-1">${bookings.length + 150}</h3>
-                            <span class="text-[10px] text-blue-600 font-medium">Booking Masuk Bulan Ini</span>
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Total Booking</p>
+                            <h3 class="text-2xl font-bold text-slate-800 mt-1">${bookings.length + 150}</h3>
+                            <span class="text-[10px] text-blue-600 font-medium">Bulan Ini</span>
                         </div>
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-lg">
                             <i class="fa-solid fa-calendar-check"></i>
                         </div>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                         <div>
-                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Servis Selesai</p>
-                            <h3 class="text-3xl font-bold text-slate-800 mt-1">${bookings.filter(b => b.status === 'Selesai').length + 135}</h3>
-                            <span class="text-[10px] text-emerald-600 font-medium">Servis Berhasil & Selesai</span>
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Servis Selesai</p>
+                            <h3 class="text-2xl font-bold text-slate-800 mt-1">${bookings.filter(b => b.status === 'Selesai').length + 135}</h3>
+                            <span class="text-[10px] text-emerald-600 font-medium">Berhasil</span>
                         </div>
-                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                        <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-lg">
                             <i class="fa-solid fa-circle-check"></i>
                         </div>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                         <div>
-                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Pendapatan Hari Ini</p>
-                            <h3 id="dash-admin-today-income" class="text-xl font-bold text-emerald-600 mt-1">${fin.todayStr}</h3>
-                            <span class="text-[10px] text-emerald-600 font-medium">Kas Masuk (Pembayaran Berhasil)</span>
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Total Pelanggan</p>
+                            <h3 class="text-2xl font-bold text-indigo-600 mt-1">${totalCustomersCount}</h3>
+                            <span class="text-[10px] text-indigo-600 font-medium">Akun Terdaftar</span>
                         </div>
-                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                        <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Pendapatan Hari Ini</p>
+                            <h3 class="text-lg font-bold text-emerald-600 mt-1">${fin.todayStr}</h3>
+                            <span class="text-[10px] text-emerald-600 font-medium">Kas Masuk</span>
+                        </div>
+                        <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-lg">
                             <i class="fa-solid fa-wallet"></i>
                         </div>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                         <div>
-                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Pendapatan Bulan Ini</p>
-                            <h3 class="text-xl font-bold text-slate-800 mt-1">${fin.monthStr}</h3>
-                            <span class="text-[10px] text-purple-600 font-medium">Akumulasi Kas Toko</span>
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Pendapatan Bulan Ini</p>
+                            <h3 class="text-lg font-bold text-slate-800 mt-1">${fin.monthStr}</h3>
+                            <span class="text-[10px] text-purple-600 font-medium">Akumulasi Toko</span>
                         </div>
-                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl">
+                        <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-lg">
                             <i class="fa-solid fa-chart-line"></i>
                         </div>
                     </div>
@@ -764,6 +778,7 @@
                 subtitle.innerText = "Buat jadwal booking servis kendaraan Anda. Servis berjalan setelah pembayaran berhasil.";
                 actionContainer.innerHTML = `<button onclick="switchView('booking')" class="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-6 py-3 rounded-xl shadow-md transition flex items-center gap-2"><i class="fa-solid fa-plus-circle"></i> Booking Baru</button>`;
 
+                statsContainer.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
                 const myVehicles = vehiclesMap[currentUser.name] || [];
                 const myBookings = bookings.filter(b => b.customer === currentUser.name);
 
@@ -872,7 +887,6 @@
                 vehicle: vehicle,
                 service: service,
                 paymentMethod: paymentMethod,
-                // Jika Bayar Offline, status awal Menunggu (belum masuk pendapatan sampai kasir acc). Jika QRIS/Transfer, setelah simulasi bayar lunas menjadi Diproses (masuk pendapatan).
                 status: paymentMethod === 'Offline Kasir' ? "Menunggu" : "Diproses",
                 notes: notes
             };
@@ -971,7 +985,6 @@
                 return matchSearch && matchStatus;
             });
 
-            // Update financial summary cards in View 5
             const fin = calculateFinancials();
             document.getElementById('report-today-income').innerText = fin.todayStr;
             document.getElementById('report-month-income').innerText = fin.monthStr;
