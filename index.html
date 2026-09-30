@@ -164,48 +164,9 @@
                     </div>
                 </div>
 
-                <!-- Stats Grid (Infografis Style) -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400" id="stat-label-1">Total Booking</p>
-                            <h3 id="stat-1" class="text-3xl font-bold text-slate-800 mt-1">154</h3>
-                            <span class="text-[10px] text-blue-600 font-medium">Booking Masuk Bulan Ini</span>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-calendar-check"></i>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400" id="stat-label-2">Servis Selesai</p>
-                            <h3 id="stat-2" class="text-3xl font-bold text-slate-800 mt-1">138</h3>
-                            <span class="text-[10px] text-emerald-600 font-medium">Servis Berhasil Bulan Ini</span>
-                        </div>
-                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-circle-check"></i>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400" id="stat-label-3">Total Pelanggan</p>
-                            <h3 id="stat-3" class="text-3xl font-bold text-slate-800 mt-1">89</h3>
-                            <span class="text-[10px] text-amber-600 font-medium">Pelanggan Terdaftar</span>
-                        </div>
-                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-users"></i>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Ringkasan Keuangan</p>
-                            <h3 class="text-sm font-bold text-slate-800 mt-1">Rp 45.500.000</h3>
-                            <span class="text-[10px] text-purple-600 font-medium">Pendapatan Bulan Ini</span>
-                        </div>
-                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-wallet"></i>
-                        </div>
-                    </div>
+                <!-- Stats Grid (Infografis Style - Dinamis Berdasarkan Role) -->
+                <div id="stats-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Populated dynamically by JavaScript based on Role -->
                 </div>
 
                 <!-- Main Dashboard Content (Admin Multi-Customer List or Customer Bookings) -->
@@ -665,6 +626,7 @@
             const subtitle = document.getElementById('dash-subtitle');
             const badge = document.getElementById('dash-greeting-badge');
             const actionContainer = document.getElementById('dash-action-btn-container');
+            const statsContainer = document.getElementById('stats-grid-container');
             const tableHead = document.getElementById('dashboard-table-head');
             const tableTitle = document.getElementById('dashboard-table-title');
             const tableSubtitle = document.getElementById('dashboard-table-subtitle');
@@ -678,12 +640,49 @@
                 subtitle.innerText = "Manajemen Data & Status Servis Terpadu secara real-time.";
                 actionContainer.innerHTML = `<button onclick="switchView('reports')" class="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-6 py-3 rounded-xl shadow-md transition"><i class="fa-solid fa-file-lines mr-1"></i> Lihat Laporan & Keuangan</button>`;
 
-                document.getElementById('stat-label-1').innerText = "Total Booking";
-                document.getElementById('stat-1').innerText = bookings.length + 150;
-                document.getElementById('stat-label-2').innerText = "Servis Selesai";
-                document.getElementById('stat-2').innerText = bookings.filter(b => b.status === 'Selesai').length + 135;
-                document.getElementById('stat-label-3').innerText = "Total Pelanggan";
-                document.getElementById('stat-3').innerText = users.filter(u => u.role === 'customer').length + 86;
+                // Statistik Admin (Termasuk Ringkasan Keuangan)
+                statsContainer.innerHTML = `
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Booking</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">${bookings.length + 150}</h3>
+                            <span class="text-[10px] text-blue-600 font-medium">Booking Masuk Bulan Ini</span>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Servis Selesai</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">${bookings.filter(b => b.status === 'Selesai').length + 135}</h3>
+                            <span class="text-[10px] text-emerald-600 font-medium">Servis Berhasil Bulan Ini</span>
+                        </div>
+                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Pelanggan</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">${users.filter(u => u.role === 'customer').length + 86}</h3>
+                            <span class="text-[10px] text-amber-600 font-medium">Pelanggan Terdaftar</span>
+                        </div>
+                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Ringkasan Keuangan</p>
+                            <h3 class="text-sm font-bold text-slate-800 mt-1">Rp 45.500.000</h3>
+                            <span class="text-[10px] text-purple-600 font-medium">Pendapatan Bulan Ini</span>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                    </div>
+                `;
 
                 tableTitle.innerHTML = `<i class="fa-solid fa-users-gear mr-2 text-blue-600"></i>Manajemen Data & Status Servis`;
                 tableSubtitle.innerText = "Booking Dibuat ➔ Servis Diproses ➔ Servis Selesai";
@@ -727,7 +726,7 @@
                 }
 
             } else {
-                // Customer view (tetap dipertahankan sesuai instruksi)
+                // Customer view (Tanpa Kartu Ringkasan Keuangan)
                 badge.innerText = "Dashboard Pelanggan";
                 title.innerText = "Halo, " + currentUser.name + "!";
                 subtitle.innerText = "Buat jadwal booking servis kendaraan Anda dan pantau riwayat transaksinya.";
@@ -736,12 +735,39 @@
                 const myVehicles = vehiclesMap[currentUser.name] || [];
                 const myBookings = bookings.filter(b => b.customer === currentUser.name);
 
-                document.getElementById('stat-label-1').innerText = "Booking Saya";
-                document.getElementById('stat-1').innerText = myBookings.length;
-                document.getElementById('stat-label-2').innerText = "Servis Selesai";
-                document.getElementById('stat-2').innerText = myBookings.filter(b => b.status === 'Selesai').length;
-                document.getElementById('stat-label-3').innerText = "Garasi Kendaraan";
-                document.getElementById('stat-3').innerText = myVehicles.length;
+                // Statistik khusus pelanggan (Hanya 3 kotak: Tanpa Keuangan)
+                statsContainer.innerHTML = `
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Booking Saya</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">${myBookings.length}</h3>
+                            <span class="text-[10px] text-blue-600 font-medium">Total Booking Anda</span>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Servis Selesai</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">${myBookings.filter(b => b.status === 'Selesai').length}</h3>
+                            <span class="text-[10px] text-emerald-600 font-medium">Kendaraan Telah Diservis</span>
+                        </div>
+                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Garasi Kendaraan</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">${myVehicles.length}</h3>
+                            <span class="text-[10px] text-amber-600 font-medium">Kendaraan Terdaftar</span>
+                        </div>
+                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-car"></i>
+                        </div>
+                    </div>
+                `;
 
                 tableTitle.innerHTML = `<i class="fa-solid fa-clock-rotate-left mr-2 text-blue-600"></i>Riwayat Booking & Status Servis Saya`;
                 tableSubtitle.innerText = "Status diperbarui oleh bengkel";
