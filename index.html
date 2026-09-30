@@ -174,7 +174,7 @@
                     <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-6">
                         <div class="flex justify-between items-center">
                             <h2 id="dashboard-table-title" class="text-lg font-bold text-slate-800"><i class="fa-solid fa-clock-rotate-left mr-2 text-blue-600"></i>Daftar Booking Servis</h2>
-                            <span id="dashboard-table-subtitle" class="text-xs text-slate-400">Alur: Booking Dibuat ➔ Servis Diproses ➔ Servis Selesai</span>
+                            <span id="dashboard-table-subtitle" class="text-xs text-slate-400">Alur: Pembayaran Berhasil ➔ Servis Diproses ➔ Selesai</span>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
@@ -208,7 +208,7 @@
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 max-w-3xl mx-auto">
                     <div class="border-b border-slate-100 pb-4 mb-6">
                         <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-calendar-plus text-blue-600 mr-2"></i>Form Booking & Pembayaran Servis</h2>
-                        <p class="text-slate-500 text-sm mt-1">Pilih jadwal, kendaraan, jenis layanan, dan metode pembayaran.</p>
+                        <p class="text-slate-500 text-sm mt-1">Servis akan berjalan apabila pembayaran berhasil dilakukan dan masuk ke pendapatan admin.</p>
                     </div>
 
                     <form id="booking-form" onsubmit="handleCreateBooking(event)" class="space-y-6">
@@ -280,7 +280,7 @@
 
                         <div class="flex justify-end gap-4 pt-4 border-t border-slate-100">
                             <button type="button" onclick="switchView('dashboard')" class="px-6 py-3 rounded-xl border border-slate-300 text-slate-700 font-semibold text-sm hover:bg-slate-50 transition">Batal</button>
-                            <button type="submit" class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-lg shadow-blue-600/30 transition">Lanjut & Konfirmasi Booking</button>
+                            <button type="submit" class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-lg shadow-blue-600/30 transition">Lanjut & Bayar Servis</button>
                         </div>
                     </form>
                 </div>
@@ -292,7 +292,7 @@
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-4">
                         <div>
                             <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-file-lines text-blue-600 mr-2"></i>Laporan Riwayat Servis & Keuangan</h2>
-                            <p class="text-slate-500 text-sm mt-1">Rekapitulasi transaksi harian, bulanan, dan ekspor data sistem.</p>
+                            <p class="text-slate-500 text-sm mt-1">Rekapitulasi transaksi harian, pendapatan kas admin, dan ekspor data sistem.</p>
                         </div>
                         <div class="flex gap-2">
                             <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2">
@@ -301,19 +301,19 @@
                         </div>
                     </div>
 
-                    <!-- Financial Summary Cards (Infografis Part 3) -->
+                    <!-- Financial Summary Cards (Piutang Diganti Pendapatan Hari Ini) -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-6 rounded-2xl border border-slate-200">
                         <div>
                             <p class="text-xs font-bold uppercase text-slate-500">Pendapatan Bulan Ini</p>
-                            <p class="text-xl font-bold text-slate-800 mt-1">Rp 45.500.000</p>
+                            <p id="report-month-income" class="text-xl font-bold text-slate-800 mt-1">Rp 45.500.000</p>
                         </div>
                         <div>
-                            <p class="text-xs font-bold uppercase text-slate-500">Piutang</p>
-                            <p class="text-xl font-bold text-slate-800 mt-1">Rp 1.200.000</p>
+                            <p class="text-xs font-bold uppercase text-slate-500">Pendapatan Hari Ini</p>
+                            <p id="report-today-income" class="text-xl font-bold text-emerald-600 mt-1">Rp 3.500.000</p>
                         </div>
                         <div>
                             <p class="text-xs font-bold uppercase text-slate-500">Rata-rata per Servis</p>
-                            <p class="text-xl font-bold text-slate-800 mt-1">Rp 330.000</p>
+                            <p id="report-avg-income" class="text-xl font-bold text-slate-800 mt-1">Rp 330.000</p>
                         </div>
                     </div>
 
@@ -346,9 +346,9 @@
                                     <th class="py-3 px-4">No Transaksi</th>
                                     <th class="py-3 px-4">Tanggal & Waktu</th>
                                     <th class="py-3 px-4">Pelanggan & Kendaraan</th>
-                                    <th class="py-3 px-4">Jenis Servis</th>
+                                    <th class="py-3 px-4">Jenis Servis & Biaya</th>
                                     <th class="py-3 px-4">Metode Bayar</th>
-                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4">Status Pembayaran / Servis</th>
                                 </tr>
                             </thead>
                             <tbody id="reports-table-body" class="text-sm divide-y divide-slate-100">
@@ -382,7 +382,7 @@
                         <div class="flex justify-between items-center border-b border-slate-100 pb-4">
                             <div>
                                 <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-car-side text-blue-600 mr-2"></i>Garasi Kendaraan Saya</h2>
-                                <p class="text-slate-500 text-sm mt-1">Kelola daftar kendaraan untuk booking servis.</p>
+                                <p class="text-slate-500 text-sm mt-1">Kelola daftar kendaraan sebelum melakukan booking servis.</p>
                             </div>
                             <button onclick="openAddVehicleModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md transition flex items-center gap-2">
                                 <i class="fa-solid fa-plus"></i> Tambah Kendaraan
@@ -459,11 +459,11 @@
                     <i class="fa-solid fa-qrcode"></i>
                 </div>
                 <h3 id="payment-modal-title" class="font-bold text-lg text-slate-800">Pembayaran Online</h3>
-                <p id="payment-modal-desc" class="text-xs text-slate-500">Selesaikan transaksi pembayaran Anda.</p>
+                <p id="payment-modal-desc" class="text-xs text-slate-500">Selesaikan pembayaran agar servis dapat segera berjalan.</p>
                 <div id="payment-content-box" class="bg-slate-50 border border-slate-200 p-4 rounded-xl">
                     <!-- Dynamic -->
                 </div>
-                <button onclick="finishPaymentSimulation()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">Saya Sudah Membayar</button>
+                <button onclick="finishPaymentSimulation()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">Saya Sudah Membayar & Konfirmasi</button>
             </div>
         </div>
 
@@ -496,7 +496,7 @@
         ];
 
         let notifications = JSON.parse(localStorage.getItem('bengkel_notifications')) || [
-            { id: 1, title: "Sistem Siap", desc: "Sistem booking servis kendaraan siap digunakan dengan multi-user.", time: "Baru saja", read: false }
+            { id: 1, title: "Sistem Siap", desc: "Sistem booking servis kendaraan siap digunakan dengan validasi pembayaran otomatis.", time: "Baru saja", read: false }
         ];
 
         let pendingBookingData = null;
@@ -621,6 +621,37 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        function extractPrice(serviceString) {
+            if (!serviceString) return 350000;
+            if (serviceString.includes('1.500.000')) return 1500000;
+            if (serviceString.includes('450.000')) return 450000;
+            if (serviceString.includes('350.000')) return 350000;
+            if (serviceString.includes('250.000')) return 250000;
+            return 350000;
+        }
+
+        function calculateFinancials() {
+            let todayIncome = 350000; // base default demo
+            let monthIncome = 45500000;
+            let validCount = 135;
+
+            bookings.forEach(b => {
+                // Servis berjalan dan masuk pendapatan admin jika pembayaran berhasil (status Diproses atau Selesai)
+                if (b.status === 'Diproses' || b.status === 'Selesai') {
+                    const price = extractPrice(b.service);
+                    monthIncome += price;
+                    validCount++;
+                    todayIncome += price;
+                }
+            });
+
+            return {
+                todayStr: "Rp " + todayIncome.toLocaleString('id-ID'),
+                monthStr: "Rp " + monthIncome.toLocaleString('id-ID'),
+                avgStr: "Rp " + Math.round(monthIncome / validCount).toLocaleString('id-ID')
+            };
+        }
+
         function renderDashboardData() {
             const title = document.getElementById('dash-title');
             const subtitle = document.getElementById('dash-subtitle');
@@ -634,13 +665,14 @@
             const listEl = document.getElementById('dashboard-booking-list');
             listEl.innerHTML = "";
 
+            const fin = calculateFinancials();
+
             if(currentUser.role === 'admin') {
-                badge.innerText = "Panel Kendali Admin (Infografis Mode)";
-                title.innerText = "Kelola Data Booking Pelanggan";
-                subtitle.innerText = "Manajemen Data & Status Servis Terpadu secara real-time.";
+                badge.innerText = "Panel Kendali Admin (Pendapatan & Kas Toko)";
+                title.innerText = "Kelola Data Booking & Pendapatan Servis";
+                subtitle.innerText = "Servis berjalan apabila pembayaran berhasil dan masuk ke pendapatan hari ini.";
                 actionContainer.innerHTML = `<button onclick="switchView('reports')" class="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-6 py-3 rounded-xl shadow-md transition"><i class="fa-solid fa-file-lines mr-1"></i> Lihat Laporan & Keuangan</button>`;
 
-                // Statistik Admin (Termasuk Ringkasan Keuangan)
                 statsContainer.innerHTML = `
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                         <div>
@@ -656,7 +688,7 @@
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Servis Selesai</p>
                             <h3 class="text-3xl font-bold text-slate-800 mt-1">${bookings.filter(b => b.status === 'Selesai').length + 135}</h3>
-                            <span class="text-[10px] text-emerald-600 font-medium">Servis Berhasil Bulan Ini</span>
+                            <span class="text-[10px] text-emerald-600 font-medium">Servis Berhasil & Selesai</span>
                         </div>
                         <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
                             <i class="fa-solid fa-circle-check"></i>
@@ -664,35 +696,35 @@
                     </div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                         <div>
-                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Pelanggan</p>
-                            <h3 class="text-3xl font-bold text-slate-800 mt-1">${users.filter(u => u.role === 'customer').length + 86}</h3>
-                            <span class="text-[10px] text-amber-600 font-medium">Pelanggan Terdaftar</span>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Pendapatan Hari Ini</p>
+                            <h3 id="dash-admin-today-income" class="text-xl font-bold text-emerald-600 mt-1">${fin.todayStr}</h3>
+                            <span class="text-[10px] text-emerald-600 font-medium">Kas Masuk (Pembayaran Berhasil)</span>
                         </div>
-                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-users"></i>
+                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-wallet"></i>
                         </div>
                     </div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                         <div>
-                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Ringkasan Keuangan</p>
-                            <h3 class="text-sm font-bold text-slate-800 mt-1">Rp 45.500.000</h3>
-                            <span class="text-[10px] text-purple-600 font-medium">Pendapatan Bulan Ini</span>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Pendapatan Bulan Ini</p>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1">${fin.monthStr}</h3>
+                            <span class="text-[10px] text-purple-600 font-medium">Akumulasi Kas Toko</span>
                         </div>
                         <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-wallet"></i>
+                            <i class="fa-solid fa-chart-line"></i>
                         </div>
                     </div>
                 `;
 
-                tableTitle.innerHTML = `<i class="fa-solid fa-users-gear mr-2 text-blue-600"></i>Manajemen Data & Status Servis`;
-                tableSubtitle.innerText = "Booking Dibuat ➔ Servis Diproses ➔ Servis Selesai";
+                tableTitle.innerHTML = `<i class="fa-solid fa-users-gear mr-2 text-blue-600"></i>Manajemen Status & Verifikasi Pembayaran`;
+                tableSubtitle.innerText = "Ubah status ke 'Diproses' atau 'Selesai' untuk memasukkan dana ke Pendapatan Hari Ini";
 
                 tableHead.innerHTML = `
                     <th class="py-3 px-3">ID / Tanggal</th>
                     <th class="py-3 px-3">Nama Pelanggan</th>
                     <th class="py-3 px-3">Kendaraan</th>
                     <th class="py-3 px-3">Layanan & Pembayaran</th>
-                    <th class="py-3 px-3">Status</th>
+                    <th class="py-3 px-3">Status Servis</th>
                     <th class="py-3 px-3 text-right">Aksi Admin</th>
                 `;
 
@@ -714,8 +746,8 @@
                                 <td class="py-3.5 px-3"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${badgeColor}">${b.status}</span></td>
                                 <td class="py-3.5 px-3 text-right">
                                     <select onchange="adminUpdateStatus('${b.id}', this.value)" class="text-xs border rounded-lg px-2 py-1.5 bg-slate-50 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <option value="Menunggu" ${b.status==='Menunggu'?'selected':''}>Menunggu</option>
-                                        <option value="Diproses" ${b.status==='Diproses'?'selected':''}>Diproses</option>
+                                        <option value="Menunggu" ${b.status==='Menunggu'?'selected':''}>Menunggu (Belum Bayar)</option>
+                                        <option value="Diproses" ${b.status==='Diproses'?'selected':''}>Diproses (Bayar Sukses)</option>
                                         <option value="Selesai" ${b.status==='Selesai'?'selected':''}>Selesai</option>
                                         <option value="Dibatalkan" ${b.status==='Dibatalkan'?'selected':''}>Batalkan</option>
                                     </select>
@@ -726,16 +758,15 @@
                 }
 
             } else {
-                // Customer view (Tanpa Kartu Ringkasan Keuangan)
+                // Customer view
                 badge.innerText = "Dashboard Pelanggan";
                 title.innerText = "Halo, " + currentUser.name + "!";
-                subtitle.innerText = "Buat jadwal booking servis kendaraan Anda dan pantau riwayat transaksinya.";
+                subtitle.innerText = "Buat jadwal booking servis kendaraan Anda. Servis berjalan setelah pembayaran berhasil.";
                 actionContainer.innerHTML = `<button onclick="switchView('booking')" class="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-6 py-3 rounded-xl shadow-md transition flex items-center gap-2"><i class="fa-solid fa-plus-circle"></i> Booking Baru</button>`;
 
                 const myVehicles = vehiclesMap[currentUser.name] || [];
                 const myBookings = bookings.filter(b => b.customer === currentUser.name);
 
-                // Statistik khusus pelanggan (Hanya 3 kotak: Tanpa Keuangan)
                 statsContainer.innerHTML = `
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                         <div>
@@ -769,8 +800,8 @@
                     </div>
                 `;
 
-                tableTitle.innerHTML = `<i class="fa-solid fa-clock-rotate-left mr-2 text-blue-600"></i>Riwayat Booking & Status Servis Saya`;
-                tableSubtitle.innerText = "Status diperbarui oleh bengkel";
+                tableTitle.innerHTML = `<i class="fa-solid fa-clock-rotate-left mr-2 text-blue-600"></i>Riwayat Booking & Status Pembayaran Saya`;
+                tableSubtitle.innerText = "Servis berjalan apabila pembayaran sudah berhasil diverifikasi";
 
                 tableHead.innerHTML = `
                     <th class="py-3 px-3">ID / Tanggal</th>
@@ -841,6 +872,7 @@
                 vehicle: vehicle,
                 service: service,
                 paymentMethod: paymentMethod,
+                // Jika Bayar Offline, status awal Menunggu (belum masuk pendapatan sampai kasir acc). Jika QRIS/Transfer, setelah simulasi bayar lunas menjadi Diproses (masuk pendapatan).
                 status: paymentMethod === 'Offline Kasir' ? "Menunggu" : "Diproses",
                 notes: notes
             };
@@ -860,7 +892,7 @@
 
             if(method === 'QRIS') {
                 title.innerText = "Scan QRIS Pembayaran";
-                desc.innerText = "Scan kode QR di bawah menggunakan e-wallet (GoPay, OVO, Dana) atau M-Banking.";
+                desc.innerText = "Scan kode QR di bawah menggunakan e-wallet atau M-Banking Anda.";
                 box.innerHTML = `
                     <div class="bg-white p-3 inline-block rounded-lg shadow-sm border">
                         <i class="fa-solid fa-qrcode text-6xl text-slate-800"></i>
@@ -874,7 +906,7 @@
                     <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-left space-y-1">
                         <p class="text-xs text-slate-500 font-semibold">BANK BCA (A/N PitStop Tasya service)</p>
                         <p class="text-base font-bold font-mono text-blue-900">8830-1928-4821</p>
-                        <p class="text-[11px] text-slate-400">Pembayaran terverifikasi otomatis dalam sistem.</p>
+                        <p class="text-[11px] text-slate-400">Pembayaran terverifikasi otomatis.</p>
                     </div>
                 `;
             }
@@ -893,14 +925,14 @@
             bookings.unshift(bData);
             notifications.unshift({
                 id: Date.now(),
-                title: "Booking Servis Berhasil",
-                desc: `${bData.customer} membuat booking #${bData.id} (${bData.paymentMethod}).`,
+                title: "Pembayaran & Booking Berhasil",
+                desc: `${bData.customer} membuat booking #${bData.id} (${bData.paymentMethod}). Dana masuk ke kas admin.`,
                 time: "Baru saja",
                 read: false
             });
             saveToLocalStorage();
             switchView('dashboard');
-            showToast(`Booking #${bData.id} berhasil dibuat!`);
+            showToast(`Pembayaran sukses! Booking #${bData.id} diproses.`);
             pendingBookingData = null;
         }
 
@@ -910,7 +942,7 @@
                 b.status = newStatus;
                 notifications.unshift({
                     id: Date.now(),
-                    title: "Status Servis Diperbarui",
+                    title: "Status Servis & Pendapatan Diperbarui",
                     desc: `Booking #${b.id} milik ${b.customer} diubah menjadi: ${newStatus}`,
                     time: "Baru saja",
                     read: false
@@ -939,12 +971,23 @@
                 return matchSearch && matchStatus;
             });
 
+            // Update financial summary cards in View 5
+            const fin = calculateFinancials();
+            document.getElementById('report-today-income').innerText = fin.todayStr;
+            document.getElementById('report-month-income').innerText = fin.monthStr;
+            document.getElementById('report-avg-income').innerText = fin.avgStr;
+
             if(filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Tidak ada data laporan ditemukan.</td></tr>`;
                 return;
             }
 
             filtered.forEach(b => {
+                let badgeColor = "bg-amber-100 text-amber-700";
+                if(b.status === 'Selesai') badgeColor = "bg-emerald-100 text-emerald-700";
+                if(b.status === 'Diproses') badgeColor = "bg-blue-100 text-blue-700";
+                if(b.status === 'Dibatalkan') badgeColor = "bg-rose-100 text-rose-700";
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50/50 transition">
                         <td class="py-3.5 px-4 font-semibold text-slate-700">${b.id}</td>
@@ -952,7 +995,7 @@
                         <td class="py-3.5 px-4 font-medium text-slate-800">${b.customer}<br><span class="text-xs font-normal text-slate-500">${b.vehicle}</span></td>
                         <td class="py-3.5 px-4 text-slate-600">${b.service}</td>
                         <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-100">${b.paymentMethod}</span></td>
-                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">${b.status}</span></td>
+                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${badgeColor}">${b.status}</span></td>
                     </tr>
                 `;
             });
@@ -977,7 +1020,7 @@
             const myVehicles = vehiclesMap[currentUser.name] || [];
 
             if(myVehicles.length === 0) {
-                container.innerHTML = `<p class="text-slate-400 text-sm col-span-2">Belum ada kendaraan di garasi Anda.</p>`;
+                container.innerHTML = `<p class="text-slate-400 text-sm col-span-2">Belum ada kendaraan di garasi Anda. Tambahkan terlebih dahulu agar bisa booking.</p>`;
                 return;
             }
 
