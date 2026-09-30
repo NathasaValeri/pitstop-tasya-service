@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Booking Servis Kendaraan - PitStop Tasya service</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-full flex flex-col antialiased">
+
+    <div id="app" class="min-h-screen flex flex-col">
+
+        <!-- NAVBAR -->
+        <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('dashboard')">
+                    <div class="bg-blue-600 p-2 rounded-xl text-white font-bold text-xl shadow-lg shadow-blue-600/30">
+                        <i class="fa-solid fa-wrench"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-lg tracking-wide">PitStop Tasya service</span>
+                        <span class="text-xs block text-slate-400">Multi-User Booking & Payment System</span>
+                    </div>
+                </div>
+
+                <!-- Nav Links / User Menu -->
+                <div id="nav-menu" class="hidden md:flex items-center space-x-6 text-sm font-medium">
+                    <button onclick="switchView('dashboard')" class="nav-link hover:text-blue-400 transition" data-target="dashboard">Dashboard</button>
+                    <button onclick="switchView('booking')" class="nav-link hover:text-blue-400 transition" data-target="booking">Booking Servis</button>
+                    <button onclick="switchView('reports')" class="nav-link hover:text-blue-400 transition" data-target="reports">Laporan Servis</button>
+                    <button onclick="switchView('profile')" class="nav-link hover:text-blue-400 transition" data-target="profile">Profil / Kendaraan</button>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <button id="notification-btn" onclick="toggleNotificationModal()" class="relative p-2 rounded-full hover:bg-slate-800 text-slate-300 transition">
+                        <i class="fa-regular fa-bell text-lg"></i>
+                        <span id="notif-badge" class="absolute top-1 right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                    </button>
+                    
+                    <div id="user-auth-area" class="flex items-center space-x-3 border-l border-slate-700 pl-4">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- VIEW 1: LOGIN -->
+            <section id="view-login" class="hidden max-w-md mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden mt-10 fade-in">
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white text-center">
+                    <div class="w-16 h-16 bg-white/10 backdrop-blur rounded-2xl mx-auto flex items-center justify-center text-3xl mb-3 shadow-inner">
+                        <i class="fa-solid fa-car-tunnel"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold">Masuk ke PitStop Tasya service</h2>
+                    <p class="text-blue-100 text-sm mt-1">Silakan masuk dengan akun Anda</p>
+                </div>
+                <div class="p-8 space-y-6">
+                    <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Email / Username</label>
+                            <input type="email" id="login-email" placeholder="contoh: budi@email.com" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Password</label>
+                            <input type="password" id="login-pass" placeholder="••••••••" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50" required>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-blue-600/30 transition duration-200">
+                            Masuk <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+                    </form>
+
+                    <div class="text-center pt-2 border-t border-slate-100 space-y-2">
+                        <p class="text-xs text-slate-500">Belum punya akun pelanggan?</p>
+                        <button onclick="switchView('register')" class="text-blue-600 hover:text-blue-700 text-sm font-bold">Daftar Akun Baru (Register)</button>
+                        <div class="pt-2">
+                            <button onclick="fillAdminDemo()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg font-medium transition">
+                                <i class="fa-solid fa-shield-halved mr-1 text-blue-600"></i> Login sebagai Admin Demo (Pak Joko)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 2: REGISTER -->
+            <section id="view-register" class="hidden max-w-md mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden mt-6 fade-in">
+                <div class="bg-gradient-to-r from-emerald-600 to-teal-700 p-6 text-white text-center">
+                    <div class="w-16 h-16 bg-white/10 backdrop-blur rounded-2xl mx-auto flex items-center justify-center text-3xl mb-3 shadow-inner">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold">Pendaftaran Pelanggan Baru</h2>
+                    <p class="text-emerald-100 text-sm mt-1">Buat akun untuk mulai booking servis kendaraan</p>
+                </div>
+                <div class="p-8">
+                    <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Nama Lengkap</label>
+                            <input type="text" id="reg-name" placeholder="Siti Aminah" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Email</label>
+                            <input type="email" id="reg-email" placeholder="siti@email.com" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Nomor Telepon / WhatsApp</label>
+                            <input type="text" id="reg-phone" placeholder="08123456789" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Password</label>
+                            <input type="password" id="reg-pass" placeholder="••••••••" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50" required>
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-emerald-600/30 transition duration-200">
+                            Daftar Sekarang <i class="fa-solid fa-check ml-2"></i>
+                        </button>
+                    </form>
+                    <div class="text-center pt-4 border-t border-slate-100 mt-4">
+                        <p class="text-xs text-slate-500">Sudah punya akun?</p>
+                        <button onclick="switchView('login')" class="text-blue-600 hover:text-blue-700 text-sm font-bold mt-1">Masuk ke Akun Anda</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 3: DASHBOARD -->
+            <section id="view-dashboard" class="hidden space-y-8 fade-in">
+                <!-- Welcome Banner -->
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-xl flex flex-col md:flex-row justify-between items-center relative overflow-hidden">
+                    <div class="absolute right-0 bottom-0 translate-x-10 translate-y-10 opacity-10 text-9xl">
+                        <i class="fa-solid fa-car"></i>
+                    </div>
+                    <div class="space-y-2 z-10">
+                        <span id="dash-greeting-badge" class="bg-blue-500/40 text-blue-100 text-xs px-3 py-1 rounded-full font-medium uppercase tracking-wider">Dashboard</span>
+                        <h1 id="dash-title" class="text-3xl font-bold">Selamat Datang!</h1>
+                        <p id="dash-subtitle" class="text-blue-100 text-sm max-w-xl">Kelola jadwal servis dan pembayaran transaksi Anda.</p>
+                    </div>
+                    <div id="dash-action-btn-container" class="mt-6 md:mt-0 z-10 flex gap-3">
+                        <button onclick="switchView('booking')" class="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-6 py-3 rounded-xl shadow-md transition flex items-center gap-2">
+                            <i class="fa-solid fa-plus-circle"></i> Booking Baru
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400" id="stat-label-1">Total Booking</p>
+                            <h3 id="stat-1" class="text-3xl font-bold text-slate-800 mt-1">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400" id="stat-label-2">Servis Selesai</p>
+                            <h3 id="stat-2" class="text-3xl font-bold text-slate-800 mt-1">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400" id="stat-label-3">Garasi Kendaraan</p>
+                            <h3 id="stat-3" class="text-3xl font-bold text-slate-800 mt-1">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-car-side"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Pembayaran</p>
+                            <h3 class="text-sm font-bold text-slate-800 mt-1">QRIS / TF / Tunai</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Dashboard Content (Admin Multi-Customer List or Customer Bookings) -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-6">
+                        <div class="flex justify-between items-center">
+                            <h2 id="dashboard-table-title" class="text-lg font-bold text-slate-800"><i class="fa-solid fa-clock-rotate-left mr-2 text-blue-600"></i>Daftar Booking Servis</h2>
+                            <span id="dashboard-table-subtitle" class="text-xs text-slate-400">Update real-time</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr id="dashboard-table-head" class="border-b border-slate-100 text-xs font-semibold uppercase text-slate-400">
+                                        <!-- Dynamic Header -->
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboard-booking-list" class="text-sm divide-y divide-slate-100">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Quick Notifications Panel -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-lg font-bold text-slate-800"><i class="fa-regular fa-bell mr-2 text-blue-600"></i>Notifikasi</h2>
+                            <span class="text-xs bg-blue-100 text-blue-600 font-semibold px-2.5 py-1 rounded-full">Sistem</span>
+                        </div>
+                        <div id="sidebar-notification-list" class="space-y-3">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 4: BOOKING TRANSACTIONS & PAYMENT -->
+            <section id="view-booking" class="hidden space-y-8 fade-in">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 max-w-3xl mx-auto">
+                    <div class="border-b border-slate-100 pb-4 mb-6">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-calendar-plus text-blue-600 mr-2"></i>Form Booking & Pembayaran Servis</h2>
+                        <p class="text-slate-500 text-sm mt-1">Pilih jadwal, kendaraan, jenis layanan, dan metode pembayaran.</p>
+                    </div>
+
+                    <form id="booking-form" onsubmit="handleCreateBooking(event)" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">Pilih Kendaraan Anda</label>
+                                <select id="book-vehicle" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50" required>
+                                    <!-- Populated from garasi -->
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">Jenis Paket Servis</label>
+                                <select id="book-service-type" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50" required>
+                                    <option value="Servis Berkala 10.000 KM (Rp 350.000)">Servis Berkala 10.000 KM - Rp 350.000</option>
+                                    <option value="Tune Up & Ganti Oli (Rp 450.000)">Tune Up & Ganti Oli - Rp 450.000</option>
+                                    <option value="Servis Rem & Kaki-Kaki (Rp 250.000)">Servis Rem & Kaki-Kaki - Rp 250.000</option>
+                                    <option value="General Overhaul Engine (Rp 1.500.000)">General Overhaul Engine - Rp 1.500.000</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">Tanggal Booking</label>
+                                <input type="date" id="book-date" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">Jam Kedatangan</label>
+                                <select id="book-time" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50" required>
+                                    <option value="09:00 WIB">09:00 - 10:00 WIB (Pagi)</option>
+                                    <option value="11:00 WIB">11:00 - 12:00 WIB (Siang)</option>
+                                    <option value="13:30 WIB">13:30 - 14:30 WIB (Siang)</option>
+                                    <option value="15:30 WIB">15:30 - 16:30 WIB (Sore)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Pilih Metode Pembayaran</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <label class="border rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:border-blue-500 bg-slate-50 transition">
+                                    <input type="radio" name="payment-method" value="QRIS" class="text-blue-600 focus:ring-blue-500" checked>
+                                    <div>
+                                        <span class="font-bold block text-sm text-slate-800"><i class="fa-solid fa-qrcode text-blue-600 mr-1"></i> QRIS</span>
+                                        <span class="text-xs text-slate-500">Scan via GoPay, OVO, BCA, dll</span>
+                                    </div>
+                                </label>
+                                <label class="border rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:border-blue-500 bg-slate-50 transition">
+                                    <input type="radio" name="payment-method" value="Transfer Bank" class="text-blue-600 focus:ring-blue-500">
+                                    <div>
+                                        <span class="font-bold block text-sm text-slate-800"><i class="fa-solid fa-building-columns text-blue-600 mr-1"></i> Transfer Bank</span>
+                                        <span class="text-xs text-slate-500">BCA / Mandiri / BNI</span>
+                                    </div>
+                                </label>
+                                <label class="border rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:border-blue-500 bg-slate-50 transition">
+                                    <input type="radio" name="payment-method" value="Offline Kasir" class="text-blue-600 focus:ring-blue-500">
+                                    <div>
+                                        <span class="font-bold block text-sm text-slate-800"><i class="fa-solid fa-cash-register text-emerald-600 mr-1"></i> Bayar Offline</span>
+                                        <span class="text-xs text-slate-500">Bayar langsung di kasir</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Keluhan / Catatan Kendaraan (Opsional)</label>
+                            <textarea id="book-notes" rows="3" placeholder="Contoh: Bunyi decit saat rem ditekan..." class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50"></textarea>
+                        </div>
+
+                        <div class="flex justify-end gap-4 pt-4 border-t border-slate-100">
+                            <button type="button" onclick="switchView('dashboard')" class="px-6 py-3 rounded-xl border border-slate-300 text-slate-700 font-semibold text-sm hover:bg-slate-50 transition">Batal</button>
+                            <button type="submit" class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-lg shadow-blue-600/30 transition">Lanjut & Konfirmasi Booking</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- VIEW 5: LAPORAN SERVIS -->
+            <section id="view-reports" class="hidden space-y-8 fade-in">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-file-lines text-blue-600 mr-2"></i>Laporan Riwayat Servis & Pembayaran</h2>
+                            <p class="text-slate-500 text-sm mt-1">Rekapitulasi transaksi servis dan status pembayaran.</p>
+                        </div>
+                        <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2">
+                            <i class="fa-solid fa-print"></i> Cetak Laporan
+                        </button>
+                    </div>
+
+                    <!-- Filter Bar -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Cari Kendaraan / ID</label>
+                            <input type="text" id="report-search" placeholder="Contoh: B 1234 XYZ" oninput="renderReportsTable()" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Filter Status</label>
+                            <select id="report-filter-status" onchange="renderReportsTable()" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="ALL">Semua Status</option>
+                                <option value="Selesai">Selesai</option>
+                                <option value="Diproses">Diproses</option>
+                                <option value="Menunggu">Menunggu</option>
+                                <option value="Dibatalkan">Dibatalkan</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="resetReportFilter()" class="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition">Reset Filter</button>
+                        </div>
+                    </div>
+
+                    <!-- Report Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 text-xs font-semibold uppercase text-slate-400 bg-slate-50/50">
+                                    <th class="py-3 px-4">No Transaksi</th>
+                                    <th class="py-3 px-4">Tanggal & Waktu</th>
+                                    <th class="py-3 px-4">Pelanggan & Kendaraan</th>
+                                    <th class="py-3 px-4">Jenis Servis</th>
+                                    <th class="py-3 px-4">Metode Bayar</th>
+                                    <th class="py-3 px-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reports-table-body" class="text-sm divide-y divide-slate-100">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 6: PROFIL & GARASI KENDARAAN -->
+            <section id="view-profile" class="hidden space-y-8 fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Profile Card -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 text-center space-y-4">
+                        <div class="w-24 h-24 bg-blue-100 text-blue-600 rounded-full mx-auto flex items-center justify-center text-4xl font-bold shadow-inner">
+                            <span id="profile-initials">US</span>
+                        </div>
+                        <div>
+                            <h2 id="profile-name" class="text-xl font-bold text-slate-800">Nama User</h2>
+                            <p id="profile-email" class="text-slate-500 text-sm">email@domain.com</p>
+                        </div>
+                        <div class="pt-4 border-t border-slate-100 text-left space-y-2 text-sm">
+                            <div class="flex justify-between"><span class="text-slate-400">No Telepon:</span> <span id="profile-phone" class="font-medium text-slate-700">-</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">Role Sistem:</span> <span id="profile-role-badge" class="font-semibold text-blue-600">-</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Vehicle Garage Management -->
+                    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 p-8 space-y-6">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                            <div>
+                                <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-car-side text-blue-600 mr-2"></i>Garasi Kendaraan Saya</h2>
+                                <p class="text-slate-500 text-sm mt-1">Kelola daftar kendaraan untuk booking servis.</p>
+                            </div>
+                            <button onclick="openAddVehicleModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md transition flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i> Tambah Kendaraan
+                            </button>
+                        </div>
+
+                        <div id="vehicle-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-slate-900 text-slate-400 text-xs py-8 mt-12 border-t border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+                <p>&copy; 2026 PitStop Tasya service - Sistem Booking Servis Kendaraan. All rights reserved.</p>
+                <p>Mendukung autentikasi multi-user, multi-pelanggan, QRIS, Transfer Bank, dan Bayar di Tempat.</p>
+            </div>
+        </footer>
+
+        <!-- NOTIFICATION MODAL -->
+        <div id="notification-modal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex justify-end">
+            <div class="bg-white w-full max-w-md h-full shadow-2xl p-6 flex flex-col justify-between">
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                        <h3 class="font-bold text-lg text-slate-800"><i class="fa-regular fa-bell text-blue-600 mr-2"></i>Notifikasi</h3>
+                        <button onclick="toggleNotificationModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 font-bold"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div id="full-notification-list" class="space-y-3 overflow-y-auto max-h-[75vh]">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-slate-100">
+                    <button onclick="markAllNotificationsRead()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-sm transition">Tandai Semua Dibaca</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADD VEHICLE MODAL -->
+        <div id="add-vehicle-modal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <h3 class="font-bold text-lg text-slate-800">Tambah Kendaraan Baru</h3>
+                    <button onclick="closeAddVehicleModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <form onsubmit="handleAddNewVehicle(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Merek & Tipe Kendaraan</label>
+                        <input type="text" id="new-v-name" placeholder="Contoh: Honda HRV / Yamaha NMax" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor Polisi (Plat Nomor)</label>
+                        <input type="text" id="new-v-plate" placeholder="Contoh: B 2468 DEF" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tahun</label>
+                        <input type="number" id="new-v-year" placeholder="2023" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div class="flex justify-end gap-3 pt-3">
+                        <button type="button" onclick="closeAddVehicleModal()" class="px-4 py-2 rounded-xl border text-sm font-semibold text-slate-600 hover:bg-slate-50">Batal</button>
+                        <button type="submit" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- PAYMENT SIMULATION MODAL -->
+        <div id="payment-simulation-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4">
+                <div id="payment-icon-area" class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full mx-auto flex items-center justify-center text-3xl">
+                    <i class="fa-solid fa-qrcode"></i>
+                </div>
+                <h3 id="payment-modal-title" class="font-bold text-lg text-slate-800">Pembayaran Online</h3>
+                <p id="payment-modal-desc" class="text-xs text-slate-500">Selesaikan transaksi pembayaran Anda.</p>
+                <div id="payment-content-box" class="bg-slate-50 border border-slate-200 p-4 rounded-xl">
+                    <!-- Dynamic -->
+                </div>
+                <button onclick="finishPaymentSimulation()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">Saya Sudah Membayar</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Database simulation using localStorage
+        let users = JSON.parse(localStorage.getItem('bengkel_users')) || [
+            { email: 'admin@bengkel.com', password: 'admin', name: 'Pak Joko (Admin Utama)', role: 'admin', phone: '08119999000' },
+            { email: 'budi@email.com', password: 'password123', name: 'Budi Santoso', role: 'customer', phone: '081234567890' },
+            { email: 'siti@email.com', password: 'password123', name: 'Siti Aminah', role: 'customer', phone: '085678901234' }
+        ];
+
+        let currentUser = JSON.parse(localStorage.getItem('bengkel_current_user')) || null;
+
+        let vehiclesMap = JSON.parse(localStorage.getItem('bengkel_vehicles')) || {
+            'Budi Santoso': [
+                { id: 1, name: 'Toyota Avanza', plate: 'B 1234 XYZ', year: '2021' },
+                { id: 2, name: 'Honda Civic', plate: 'B 5678 ABC', year: '2023' }
+            ],
+            'Siti Aminah': [
+                { id: 3, name: 'Yamaha NMax', plate: 'B 4321 MNO', year: '2022' }
+            ]
+        };
+
+        let bookings = JSON.parse(localStorage.getItem('bengkel_bookings')) || [
+            { id: "BK-9021", customer: "Budi Santoso", date: "2026-10-05", time: "09:00 WIB", vehicle: "Toyota Avanza (B 1234 XYZ)", service: "Servis Berkala 10.000 KM (Rp 350.000)", paymentMethod: "QRIS", status: "Diproses", notes: "Bunyi sedikit di roda depan" },
+            { id: "BK-8842", customer: "Siti Aminah", date: "2026-10-06", time: "11:00 WIB", vehicle: "Yamaha NMax (B 4321 MNO)", service: "Tune Up & Ganti Oli (Rp 450.000)", paymentMethod: "Transfer Bank", status: "Menunggu", notes: "Ganti oli rutin" }
+        ];
+
+        let notifications = JSON.parse(localStorage.getItem('bengkel_notifications')) || [
+            { id: 1, title: "Sistem Siap", desc: "Sistem booking servis kendaraan siap digunakan dengan multi-user.", time: "Baru saja", read: false }
+        ];
+
+        let pendingBookingData = null;
+
+        window.onload = function() {
+            checkAuthStatus();
+            initDateMin();
+        };
+
+        function saveToLocalStorage() {
+            localStorage.setItem('bengkel_users', JSON.stringify(users));
+            localStorage.setItem('bengkel_current_user', JSON.stringify(currentUser));
+            localStorage.setItem('bengkel_vehicles', JSON.stringify(vehiclesMap));
+            localStorage.setItem('bengkel_bookings', JSON.stringify(bookings));
+            localStorage.setItem('bengkel_notifications', JSON.stringify(notifications));
+        }
+
+        function initDateMin() {
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('book-date');
+            if(dateInput) dateInput.value = today;
+        }
+
+        function checkAuthStatus() {
+            const authArea = document.getElementById('user-auth-area');
+            const navMenu = document.getElementById('nav-menu');
+            
+            if (!currentUser) {
+                switchView('login');
+                navMenu.classList.add('hidden');
+                authArea.innerHTML = `<button onclick="switchView('login')" class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold">Login</button>`;
+            } else {
+                navMenu.classList.remove('hidden');
+                authArea.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold bg-slate-800 px-3 py-1.5 rounded-lg text-slate-300 border border-slate-700 hidden sm:inline-block">
+                            <i class="fa-solid fa-user-circle text-blue-400 mr-1"></i> ${currentUser.name} (${currentUser.role === 'admin' ? 'Admin' : 'Pelanggan'})
+                        </span>
+                        <button onclick="handleLogout()" class="text-rose-400 hover:text-rose-300 p-2 text-sm" title="Keluar"><i class="fa-solid fa-right-from-bracket"></i></button>
+                    </div>
+                `;
+                if(document.getElementById('view-login').classList.contains('hidden') === false || 
+                   document.getElementById('view-register').classList.contains('hidden') === false) {
+                    switchView('dashboard');
+                }
+            }
+            updateNotificationBadge();
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
+
+            const found = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pass);
+            if(found) {
+                currentUser = found;
+                saveToLocalStorage();
+                checkAuthStatus();
+                showToast("Berhasil masuk sebagai " + found.name);
+            } else {
+                showToast("Email atau password salah!", "error");
+            }
+        }
+
+        function fillAdminDemo() {
+            document.getElementById('login-email').value = 'admin@bengkel.com';
+            document.getElementById('login-pass').value = 'admin';
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const password = document.getElementById('reg-pass').value.trim();
+
+            if(users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+                showToast("Email sudah terdaftar! Gunakan email lain.", "error");
+                return;
+            }
+
+            const newUser = { name, email, phone, password, role: 'customer' };
+            users.push(newUser);
+
+            // Inisialisasi garasi kendaraan kosong untuk user baru
+            vehiclesMap[name] = [
+                { id: Date.now(), name: "Mobil Pribadi (Contoh)", plate: "B 9999 XYZ", year: "2022" }
+            ];
+
+            currentUser = newUser;
+            saveToLocalStorage();
+            checkAuthStatus();
+            showToast("Registrasi berhasil! Akun Anda telah dibuat.");
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            saveToLocalStorage();
+            checkAuthStatus();
+            showToast("Berhasil keluar.");
+        }
+
+        function switchView(viewName) {
+            if(!currentUser && viewName !== 'login' && viewName !== 'register') {
+                viewName = 'login';
+            }
+
+            const views = ['login', 'register', 'dashboard', 'booking', 'reports', 'profile'];
+            views.forEach(v => {
+                const el = document.getElementById('view-' + v);
+                if(el) el.classList.add('hidden');
+            });
+
+            const target = document.getElementById('view-' + viewName);
+            if(target) target.classList.remove('hidden');
+
+            if(viewName === 'dashboard') renderDashboardData();
+            if(viewName === 'booking') renderBookingVehicleSelect();
+            if(viewName === 'reports') renderReportsTable();
+            if(viewName === 'profile') renderProfileData();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderDashboardData() {
+            const title = document.getElementById('dash-title');
+            const subtitle = document.getElementById('dash-subtitle');
+            const badge = document.getElementById('dash-greeting-badge');
+            const actionContainer = document.getElementById('dash-action-btn-container');
+            const tableHead = document.getElementById('dashboard-table-head');
+            const tableTitle = document.getElementById('dashboard-table-title');
+            const tableSubtitle = document.getElementById('dashboard-table-subtitle');
+            
+            const listEl = document.getElementById('dashboard-booking-list');
+            listEl.innerHTML = "";
+
+            if(currentUser.role === 'admin') {
+                badge.innerText = "Panel Administrator Bengkel";
+                title.innerText = "Kelola Data Booking Pelanggan";
+                subtitle.innerText = "Daftar seluruh pelanggan yang melakukan booking servis kendaraan secara real-time.";
+                actionContainer.innerHTML = `<button onclick="switchView('reports')" class="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-6 py-3 rounded-xl shadow-md transition"><i class="fa-solid fa-file-lines mr-1"></i> Lihat Laporan</button>`;
+
+                document.getElementById('stat-label-1').innerText = "Total Seluruh Booking";
+                document.getElementById('stat-1').innerText = bookings.length;
+                document.getElementById('stat-label-2').innerText = "Servis Selesai";
+                document.getElementById('stat-2').innerText = bookings.filter(b => b.status === 'Selesai').length;
+                document.getElementById('stat-label-3').innerText = "Total Pelanggan";
+                document.getElementById('stat-3').innerText = users.filter(u => u.role === 'customer').length;
+
+                tableTitle.innerHTML = `<i class="fa-solid fa-users-gear mr-2 text-blue-600"></i>Daftar Booking Masuk dari Pelanggan`;
+                tableSubtitle.innerText = "Admin dapat memproses & mengubah status servis";
+
+                tableHead.innerHTML = `
+                    <th class="py-3 px-3">ID / Tanggal</th>
+                    <th class="py-3 px-3">Nama Pelanggan</th>
+                    <th class="py-3 px-3">Kendaraan</th>
+                    <th class="py-3 px-3">Layanan & Pembayaran</th>
+                    <th class="py-3 px-3">Status</th>
+                    <th class="py-3 px-3 text-right">Aksi Admin</th>
+                `;
+
+                if(bookings.length === 0) {
+                    listEl.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Belum ada booking masuk dari pelanggan.</td></tr>`;
+                } else {
+                    bookings.forEach(b => {
+                        let badgeColor = "bg-amber-100 text-amber-700";
+                        if(b.status === 'Selesai') badgeColor = "bg-emerald-100 text-emerald-700";
+                        if(b.status === 'Diproses') badgeColor = "bg-blue-100 text-blue-700";
+                        if(b.status === 'Dibatalkan') badgeColor = "bg-rose-100 text-rose-700";
+
+                        listEl.innerHTML += `
+                            <tr class="hover:bg-slate-50/50 transition">
+                                <td class="py-3.5 px-3 font-semibold text-slate-700">${b.id}<br><span class="text-xs font-normal text-slate-400">${b.date} (${b.time})</span></td>
+                                <td class="py-3.5 px-3 font-bold text-slate-800">${b.customer}</td>
+                                <td class="py-3.5 px-3 text-slate-600">${b.vehicle}</td>
+                                <td class="py-3.5 px-3 text-slate-600">${b.service}<br><span class="text-[11px] font-semibold text-purple-600"><i class="fa-solid fa-wallet mr-1"></i> ${b.paymentMethod}</span></td>
+                                <td class="py-3.5 px-3"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${badgeColor}">${b.status}</span></td>
+                                <td class="py-3.5 px-3 text-right">
+                                    <select onchange="adminUpdateStatus('${b.id}', this.value)" class="text-xs border rounded-lg px-2 py-1.5 bg-slate-50 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="Menunggu" ${b.status==='Menunggu'?'selected':''}>Menunggu</option>
+                                        <option value="Diproses" ${b.status==='Diproses'?'selected':''}>Diproses</option>
+                                        <option value="Selesai" ${b.status==='Selesai'?'selected':''}>Selesai</option>
+                                        <option value="Dibatalkan" ${b.status==='Dibatalkan'?'selected':''}>Batalkan</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+            } else {
+                // Customer view
+                badge.innerText = "Dashboard Pelanggan";
+                title.innerText = "Halo, " + currentUser.name + "!";
+                subtitle.innerText = "Buat jadwal booking servis kendaraan Anda dan pantau riwayat transaksinya.";
+                actionContainer.innerHTML = `<button onclick="switchView('booking')" class="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-6 py-3 rounded-xl shadow-md transition flex items-center gap-2"><i class="fa-solid fa-plus-circle"></i> Booking Baru</button>`;
+
+                const myVehicles = vehiclesMap[currentUser.name] || [];
+                const myBookings = bookings.filter(b => b.customer === currentUser.name);
+
+                document.getElementById('stat-label-1').innerText = "Booking Saya";
+                document.getElementById('stat-1').innerText = myBookings.length;
+                document.getElementById('stat-label-2').innerText = "Servis Selesai";
+                document.getElementById('stat-2').innerText = myBookings.filter(b => b.status === 'Selesai').length;
+                document.getElementById('stat-label-3').innerText = "Garasi Kendaraan";
+                document.getElementById('stat-3').innerText = myVehicles.length;
+
+                tableTitle.innerHTML = `<i class="fa-solid fa-clock-rotate-left mr-2 text-blue-600"></i>Riwayat Booking & Status Servis Saya`;
+                tableSubtitle.innerText = "Status diperbarui oleh bengkel";
+
+                tableHead.innerHTML = `
+                    <th class="py-3 px-3">ID / Tanggal</th>
+                    <th class="py-3 px-3">Kendaraan</th>
+                    <th class="py-3 px-3">Layanan & Pembayaran</th>
+                    <th class="py-3 px-3">Status</th>
+                    <th class="py-3 px-3 text-right">Catatan</th>
+                `;
+
+                if(myBookings.length === 0) {
+                    listEl.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400">Anda belum memiliki riwayat booking servis.</td></tr>`;
+                } else {
+                    myBookings.forEach(b => {
+                        let badgeColor = "bg-amber-100 text-amber-700";
+                        if(b.status === 'Selesai') badgeColor = "bg-emerald-100 text-emerald-700";
+                        if(b.status === 'Diproses') badgeColor = "bg-blue-100 text-blue-700";
+                        if(b.status === 'Dibatalkan') badgeColor = "bg-rose-100 text-rose-700";
+
+                        listEl.innerHTML += `
+                            <tr class="hover:bg-slate-50/50 transition">
+                                <td class="py-3.5 px-3 font-semibold text-slate-700">${b.id}<br><span class="text-xs font-normal text-slate-400">${b.date} (${b.time})</span></td>
+                                <td class="py-3.5 px-3 text-slate-600">${b.vehicle}</td>
+                                <td class="py-3.5 px-3 text-slate-600">${b.service}<br><span class="text-[11px] font-semibold text-purple-600"><i class="fa-solid fa-wallet mr-1"></i> ${b.paymentMethod}</span></td>
+                                <td class="py-3.5 px-3"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${badgeColor}">${b.status}</span></td>
+                                <td class="py-3.5 px-3 text-right text-xs text-slate-500">${b.notes}</td>
+                            </tr>
+                        `;
+                    });
+                }
+            }
+
+            renderSidebarNotifications();
+        }
+
+        function renderBookingVehicleSelect() {
+            const select = document.getElementById('book-vehicle');
+            select.innerHTML = "";
+            const myVehicles = vehiclesMap[currentUser.name] || [];
+            
+            if(myVehicles.length === 0) {
+                select.innerHTML = `<option value="">Belum ada kendaraan di garasi (Tambah dulu di menu Profil)</option>`;
+                return;
+            }
+
+            myVehicles.forEach(v => {
+                select.innerHTML += `<option value="${v.name} (${v.plate})">${v.name} - ${v.plate} (Tahun ${v.year})</option>`;
+            });
+        }
+
+        function handleCreateBooking(e) {
+            e.preventDefault();
+            const vehicle = document.getElementById('book-vehicle').value;
+            if(!vehicle) {
+                showToast("Silakan tambahkan kendaraan terlebih dahulu di menu Profil!", "error");
+                return;
+            }
+            const service = document.getElementById('book-service-type').value;
+            const date = document.getElementById('book-date').value;
+            const time = document.getElementById('book-time').value;
+            const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+            const notes = document.getElementById('book-notes').value || "Tanpa catatan";
+
+            pendingBookingData = {
+                id: "BK-" + Math.floor(1000 + Math.random() * 9000),
+                customer: currentUser.name,
+                date: date,
+                time: time,
+                vehicle: vehicle,
+                service: service,
+                paymentMethod: paymentMethod,
+                status: paymentMethod === 'Offline Kasir' ? "Menunggu" : "Diproses",
+                notes: notes
+            };
+
+            if(paymentMethod === 'Offline Kasir') {
+                finalizeBooking(pendingBookingData);
+            } else {
+                showPaymentModal(paymentMethod);
+            }
+        }
+
+        function showPaymentModal(method) {
+            const modal = document.getElementById('payment-simulation-modal');
+            const title = document.getElementById('payment-modal-title');
+            const desc = document.getElementById('payment-modal-desc');
+            const box = document.getElementById('payment-content-box');
+
+            if(method === 'QRIS') {
+                title.innerText = "Scan QRIS Pembayaran";
+                desc.innerText = "Scan kode QR di bawah menggunakan e-wallet (GoPay, OVO, Dana) atau M-Banking.";
+                box.innerHTML = `
+                    <div class="bg-white p-3 inline-block rounded-lg shadow-sm border">
+                        <i class="fa-solid fa-qrcode text-6xl text-slate-800"></i>
+                    </div>
+                    <p class="text-xs font-mono font-bold mt-2 text-slate-700">MERCHANT: PITSTOP-TASYA</p>
+                `;
+            } else {
+                title.innerText = "Transfer Bank Virtual Account";
+                desc.innerText = "Silakan transfer ke nomor rekening berikut:";
+                box.innerHTML = `
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-left space-y-1">
+                        <p class="text-xs text-slate-500 font-semibold">BANK BCA (A/N PitStop Tasya service)</p>
+                        <p class="text-base font-bold font-mono text-blue-900">8830-1928-4821</p>
+                        <p class="text-[11px] text-slate-400">Pembayaran terverifikasi otomatis dalam sistem.</p>
+                    </div>
+                `;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function finishPaymentSimulation() {
+            document.getElementById('payment-simulation-modal').classList.add('hidden');
+            if(pendingBookingData) {
+                finalizeBooking(pendingBookingData);
+            }
+        }
+
+        function finalizeBooking(bData) {
+            bookings.unshift(bData);
+            notifications.unshift({
+                id: Date.now(),
+                title: "Booking Servis Berhasil",
+                desc: `${bData.customer} membuat booking #${bData.id} (${bData.paymentMethod}).`,
+                time: "Baru saja",
+                read: false
+            });
+            saveToLocalStorage();
+            switchView('dashboard');
+            showToast(`Booking #${bData.id} berhasil dibuat!`);
+            pendingBookingData = null;
+        }
+
+        function adminUpdateStatus(bookingId, newStatus) {
+            const b = bookings.find(item => item.id === bookingId);
+            if(b) {
+                b.status = newStatus;
+                notifications.unshift({
+                    id: Date.now(),
+                    title: "Status Servis Diperbarui",
+                    desc: `Booking #${b.id} milik ${b.customer} diubah menjadi: ${newStatus}`,
+                    time: "Baru saja",
+                    read: false
+                });
+                saveToLocalStorage();
+                renderDashboardData();
+                showToast(`Status #${b.id} diperbarui ke ${newStatus}`);
+            }
+        }
+
+        function renderReportsTable() {
+            const tbody = document.getElementById('reports-table-body');
+            const searchVal = document.getElementById('report-search').value.toLowerCase();
+            const statusVal = document.getElementById('report-filter-status').value;
+
+            tbody.innerHTML = "";
+
+            let dataToReport = bookings;
+            if(currentUser.role === 'customer') {
+                dataToReport = bookings.filter(b => b.customer === currentUser.name);
+            }
+
+            const filtered = dataToReport.filter(b => {
+                const matchSearch = b.vehicle.toLowerCase().includes(searchVal) || b.id.toLowerCase().includes(searchVal) || b.customer.toLowerCase().includes(searchVal);
+                const matchStatus = (statusVal === 'ALL' || b.status === statusVal);
+                return matchSearch && matchStatus;
+            });
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Tidak ada data laporan ditemukan.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(b => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50/50 transition">
+                        <td class="py-3.5 px-4 font-semibold text-slate-700">${b.id}</td>
+                        <td class="py-3.5 px-4 text-slate-600">${b.date}<br><span class="text-xs text-slate-400">${b.time}</span></td>
+                        <td class="py-3.5 px-4 font-medium text-slate-800">${b.customer}<br><span class="text-xs font-normal text-slate-500">${b.vehicle}</span></td>
+                        <td class="py-3.5 px-4 text-slate-600">${b.service}</td>
+                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-100">${b.paymentMethod}</span></td>
+                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">${b.status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function resetReportFilter() {
+            document.getElementById('report-search').value = '';
+            document.getElementById('report-filter-status').value = 'ALL';
+            renderReportsTable();
+        }
+
+        function renderProfileData() {
+            document.getElementById('profile-name').innerText = currentUser.name;
+            document.getElementById('profile-email').innerText = currentUser.email;
+            document.getElementById('profile-phone').innerText = currentUser.phone || '-';
+            document.getElementById('profile-initials').innerText = currentUser.name.split(' ').map(n => n[0]).join('');
+            document.getElementById('profile-role-badge').innerText = currentUser.role === 'admin' ? 'Administrator Bengkel' : 'Pelanggan Terdaftar';
+
+            const container = document.getElementById('vehicle-list-container');
+            container.innerHTML = "";
+
+            const myVehicles = vehiclesMap[currentUser.name] || [];
+
+            if(myVehicles.length === 0) {
+                container.innerHTML = `<p class="text-slate-400 text-sm col-span-2">Belum ada kendaraan di garasi Anda.</p>`;
+                return;
+            }
+
+            myVehicles.forEach(v => {
+                container.innerHTML += `
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-car"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800">${v.name}</h4>
+                                <p class="text-xs text-slate-500 font-mono mt-0.5">${v.plate} &bull; Tahun ${v.year}</p>
+                            </div>
+                        </div>
+                        <button onclick="removeVehicle(${v.id})" class="text-slate-400 hover:text-rose-500 transition p-2"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `;
+            });
+        }
+
+        function openAddVehicleModal() {
+            document.getElementById('add-vehicle-modal').classList.remove('hidden');
+        }
+
+        function closeAddVehicleModal() {
+            document.getElementById('add-vehicle-modal').classList.add('hidden');
+        }
+
+        function handleAddNewVehicle(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-v-name').value;
+            const plate = document.getElementById('new-v-plate').value;
+            const year = document.getElementById('new-v-year').value;
+
+            if(!vehiclesMap[currentUser.name]) {
+                vehiclesMap[currentUser.name] = [];
+            }
+
+            vehiclesMap[currentUser.name].push({ id: Date.now(), name, plate, year });
+            saveToLocalStorage();
+            closeAddVehicleModal();
+            renderProfileData();
+            showToast("Kendaraan berhasil ditambahkan ke garasi!");
+        }
+
+        function removeVehicle(id) {
+            vehiclesMap[currentUser.name] = vehiclesMap[currentUser.name].filter(v => v.id !== id);
+            saveToLocalStorage();
+            renderProfileData();
+            showToast("Kendaraan dihapus.");
+        }
+
+        function toggleNotificationModal() {
+            const modal = document.getElementById('notification-modal');
+            modal.classList.toggle('hidden');
+            renderSidebarNotifications();
+        }
+
+        function renderSidebarNotifications() {
+            const list1 = document.getElementById('sidebar-notification-list');
+            const list2 = document.getElementById('full-notification-list');
+            
+            let html = "";
+            notifications.forEach(n => {
+                html += `
+                    <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-1">
+                        <div class="flex justify-between items-start">
+                            <span class="font-bold text-xs text-slate-800">${n.title}</span>
+                            <span class="text-[10px] text-slate-400">${n.time}</span>
+                        </div>
+                        <p class="text-xs text-slate-600">${n.desc}</p>
+                    </div>
+                `;
+            });
+
+            if(list1) list1.innerHTML = html;
+            if(list2) list2.innerHTML = html;
+            updateNotificationBadge();
+        }
+
+        function updateNotificationBadge() {
+            const unreadCount = notifications.filter(n => !n.read).length;
+            const badge = document.getElementById('notif-badge');
+            if(badge) {
+                badge.innerText = unreadCount;
+                if(unreadCount === 0) badge.classList.add('hidden');
+                else badge.classList.remove('hidden');
+            }
+        }
+
+        function markAllNotificationsRead() {
+            notifications.forEach(n => n.read = true);
+            saveToLocalStorage();
+            renderSidebarNotifications();
+            showToast("Semua notifikasi ditandai telah dibaca.");
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-5 right-5 text-white px-5 py-3 rounded-xl shadow-2xl z-50 text-sm font-medium fade-in flex items-center gap-3 ${type === 'error' ? 'bg-rose-600' : 'bg-slate-900'}`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-triangle-exclamation text-amber-300' : 'fa-circle-check text-emerald-400'}"></i> ${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
